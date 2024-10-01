@@ -3,15 +3,53 @@ import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
 
 function SignUp() { 
+     const [errors, setErrors] = useState({});
+
     const [formData, setFormData] = useState({});
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate=useNavigate();
+
+    const validate = () => {
+      let validationErrors = {};
+  
+      if (!formData.username) {
+        validationErrors.username = 'Username is required';
+      } else if (formData.username.length < 3) {
+        validationErrors.username = 'Username must be at least 3 characters long';
+      }
+  
+      if (!formData.email) {
+        validationErrors.email = 'Email is required';
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        validationErrors.email = 'Email is invalid';
+      }
+  
+      if (!formData.password) {
+        validationErrors.password = 'Password is required';
+      } else if (formData.password.length < 6) {
+        validationErrors.password = 'Password must be at least 6 characters long';
+      }
+  
+      return validationErrors;
+    };
+
+    
     const handleChange = (e) => {
       setFormData({ ...formData, [e.target.id]: e.target.value });
     };
+
+
     const handleSubmit = async (e) => {
       e.preventDefault();
+
+      const validationErrors = validate();
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        return;
+      }
+
+
       try {
         setLoading(true);
         setError(false);
@@ -38,7 +76,7 @@ function SignUp() {
     };
   return (
     <div className="p-3 max-w-lg mx-auto">
-      <h1 className="text-3xl text-center font-semibold my-7">Sign Up</h1>
+      <h1 className="text-3xl text-center font-semibold my-7 uppercase">Sign Up</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           type="text"
@@ -47,6 +85,7 @@ function SignUp() {
           className="bg-slate-100 p-3 rounded-lg"
           onChange={handleChange}
         />
+         {errors.username && <p className="text-red-600">{errors.username}</p>}
         <input
           type="email"
           placeholder="Email"
@@ -54,6 +93,7 @@ function SignUp() {
           className="bg-slate-100 p-3 rounded-lg"
           onChange={handleChange}
         />
+         {errors.email && <p className="text-red-600">{errors.email}</p>}
         <input
           type="password"
           placeholder="Password"
@@ -61,6 +101,8 @@ function SignUp() {
           className="bg-slate-100 p-3 rounded-lg"
           onChange={handleChange}
         />
+        {errors.password && <p className="text-red-600">{errors.password}</p>}
+
         <button
           disabled={loading}
           className='bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
